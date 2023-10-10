@@ -61,13 +61,20 @@ gen_likert_item = function(latent_score, err_lik, n_lik_resp){
   #   (you will have to modify the equations slightly), also, remember that err_lik is alpha
   #This will be a challenging task, please feel free to ask me questions about how to translate the math.
  
+  # Equation (7): Probability that yit > j given xt
+  probability_yit_greater_than_j <- 1 / (1 + exp(-err_lik * (latent_score - beta)))
+  
+  # Equation (8):
+  # Initialize probabilities for response options
   probabilities <- numeric(n_lik_resp)
-  for (j in 1:n_lik_resp) {
-    probabilities[j] <- 1 / (1 + exp(-err_lik * (latent_score - beta[j])))
-  }
-  probabilities[1] <- 1
+  
+  # Calculate probability for response option 1
+  probabilities[1] <- 1 
+  
+  # Calculate probabilities for response options 2 to n_lik_resp
   for (j in 2:n_lik_resp) {
-    probabilities[j] <- probabilities[j] - probabilities[j - 1]
+    probabilities[j] <- probability_yit_greater_than_j[j] -
+      probability_yit_greater_than_j[j - 1]
   }
   
   #Once you have those probabilities, use the sample() function to get the observed score.
